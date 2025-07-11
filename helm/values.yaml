@@ -16,6 +16,10 @@ unmanagedProviders: [ ]
 # github: "https://github.com/i-am-bee/beeai-platform@v0.2.14#path=agent-registry.yaml"
 externalRegistries: { }
 
+oidc:
+  client_id: ""
+  enabled: true # Warning, disable only for local deployments
+
 auth:
   admin_password: ""
   enabled: true # Warning, disable only for local deployments

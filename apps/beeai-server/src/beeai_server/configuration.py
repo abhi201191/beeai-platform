@@ -79,8 +79,8 @@ class AuthConfiguration(BaseModel):
 
 
 class OidcConfiguration(BaseModel):
-    client_id: str | None = None
-    client_secret: Secret[str] | None = None
+    client_id: Secret[str] | None = Field(default=None)
+    client_secret: Secret[str] | None = Field(default=None)
     authorize_url: AnyUrl | None = None
     token_url: AnyUrl | None = None
     userinfo_url: AnyUrl | None = None
@@ -89,9 +89,9 @@ class OidcConfiguration(BaseModel):
     @model_validator(mode="after")
     def validate_oidc(self):
         if self.disable_oidc:
-            logger.critical("OIDC authentication is disabled! This is suitable only for local development.")
+            logger.critical("OIDC authentication is disabled! This is suitable only for local (desktop) development.")
             return self
-        required = ["client_id", "client_secret", "authorize_url", "token_url", "userinfo_url"]
+        required = ["client_id"]
         for field in required:
             if getattr(self, field) is None:
                 raise ValueError(f"{field} is required for OIDC if OIDC is enabled")
@@ -165,7 +165,7 @@ class Configuration(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env", env_file_encoding="utf-8", env_nested_delimiter="__", extra="ignore"
     )
-    oidc: OidcConfiguration = Field(...)
+    oidc: OidcConfiguration = Field(default_factory=OidcConfiguration)
     auth: AuthConfiguration = Field(default_factory=AuthConfiguration)
     logging: LoggingConfiguration = Field(default_factory=LoggingConfiguration)
     agent_registry: AgentRegistryConfiguration = Field(default_factory=AgentRegistryConfiguration)

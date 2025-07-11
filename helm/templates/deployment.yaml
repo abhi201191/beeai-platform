@@ -54,6 +54,8 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           env:
+            - name: OIDC__DISABLE_OIDC
+              value: "true"
             - name: AUTH__DISABLE_AUTH
               value: "true"
             - name: LOGGING__LEVEL_SQLALCHEMY
@@ -79,6 +81,8 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           env:
+            - name: OIDC__DISABLE_OIDC
+              value: "true"
             - name: AUTH__DISABLE_AUTH
               value: "true"
             - name: LOGGING__LEVEL_SQLALCHEMY
@@ -103,6 +107,8 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           env:
+            - name: OIDC__DISABLE_OIDC
+              value: "true"
             - name: AUTH__DISABLE_AUTH
               value: "true"
             - name: PERSISTENCE__ENCRYPTION_KEY
@@ -187,6 +193,15 @@ spec:
                   name: beeai-platform-secret
             {{- if not .Values.auth.enabled }}
             - name: AUTH__DISABLE_AUTH
+              value: "true"
+            {{- end }}
+            - name: OIDC__CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  key: clientId
+                  name: beeai-platform-secret
+            {{- if not .Values.oidc.enabled }}
+            - name: OIDC__DISABLE_OIDC
               value: "true"
             {{- end }}
             {{- if .Values.features.selfRegistration }}
