@@ -6,14 +6,14 @@ depends = ["helm:check:*"]
 ["helm:check:lint"]
 depends = ["helm:build:dependencies"]
 dir = "{{config_root}}/helm"
-run = "helm lint . --with-subcharts --set encryptionKey=dummy --set auth.enabled=false --strict"
+run = "helm lint . --with-subcharts --set encryptionKey=dummy --set auth.enabled=false --set oidc.enabled=false --strict"
 sources = ["Chart.yaml", "Chart.lock", "values.yaml", ".helmignore", "charts/*", "templates/**/*"]
 outputs = { auto = true }
 
 ["helm:check:render"]
 depends = ["helm:build:dependencies"]
 dir = "{{config_root}}/helm"
-run = "helm template . --set encryptionKey=dummy --set auth.enabled=false | kubeconform -strict -summary"
+run = "helm template . --set encryptionKey=dummy --set auth.enabled=false --set oidc.enabled=false | kubeconform -strict -summary"
 sources = ["Chart.yaml", "Chart.lock", "values.yaml", ".helmignore", "charts/*", "templates/**/*"]
 outputs = { auto = true }
 
