@@ -11,7 +11,9 @@
             "module": "uvicorn",
             "args": [
                 "beeai_server.application:app",
-                "--reload"
+                "--reload",
+                "--port",
+                "18333"
             ],
             "envFile": "${workspaceFolder}/apps/beeai-server/.env",
             "cwd": "${workspaceFolder}/apps/beeai-server/src",

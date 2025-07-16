@@ -1,6 +1,8 @@
 # Copyright 2025 © BeeAI a Series of LF Projects, LLC
 # SPDX-License-Identifier: Apache-2.0
 
+from beeai_server.api.auth.dependencies import get_current_user
+from beeai_server.api.auth.models import AuthenticatedUser
 import fastapi
 import fastapi.responses
 from acp_sdk import PingResponse, SessionId, SessionReadResponse
@@ -28,7 +30,9 @@ async def ping() -> PingResponse:
 
 
 @router.get("/agents")
-async def list_agents(acp_service: AcpProxyServiceDependency) -> AgentsListResponse:
+async def list_agents(
+    acp_service: AcpProxyServiceDependency, user: AuthenticatedUser = fastapi.Depends(get_current_user)
+) -> AgentsListResponse:
     return AgentsListResponse(agents=await acp_service.list_agents())
 
 

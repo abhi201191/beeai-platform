@@ -79,7 +79,7 @@ class AuthConfiguration(BaseModel):
 
 
 class OidcConfiguration(BaseModel):
-    client_id: Secret[str] | None = Field(default=None)
+    client_id: str | None = None
     client_secret: Secret[str] | None = Field(default=None)
     authorize_url: AnyUrl | None = None
     token_url: AnyUrl | None = None
@@ -89,9 +89,9 @@ class OidcConfiguration(BaseModel):
     @model_validator(mode="after")
     def validate_oidc(self):
         if self.disable_oidc:
-            logger.critical("OIDC authentication is disabled! This is suitable only for local (desktop) development.")
+            logger.critical("OIDC authentication is disabled! This is suitable only for local development.")
             return self
-        required = ["client_id"]
+        required = ["client_id", "client_secret", "authorize_url", "token_url"]
         for field in required:
             if getattr(self, field) is None:
                 raise ValueError(f"{field} is required for OIDC if OIDC is enabled")

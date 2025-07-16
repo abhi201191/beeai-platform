@@ -195,14 +195,22 @@ spec:
             - name: AUTH__DISABLE_AUTH
               value: "true"
             {{- end }}
-            - name: OIDC__CLIENT_ID
-              valueFrom:
-                secretKeyRef:
-                  key: clientId
-                  name: beeai-platform-secret
             {{- if not .Values.oidc.enabled }}
             - name: OIDC__DISABLE_OIDC
               value: "true"
+            {{- end }}
+            {{- if .Values.oidc.enabled }}
+            - name: OIDC__CLIENT_ID
+              value: {{ required "Missing required value: oidc.client_id" .Values.oidc.client_id | quote }}
+            - name: OIDC__AUTHORIZE_URL
+              value: {{ required "Missing required value: oidc.authorize_url" .Values.oidc.authorize_url | quote }}
+            - name: OIDC__TOKEN_URL
+              value: {{ required "Missing required value: oidc.token_url" .Values.oidc.token_url | quote }}
+            - name: OIDC__CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  key: clientSecret
+                  name: beeai-platform-secret
             {{- end }}
             {{- if .Values.features.selfRegistration }}
             - name: PROVIDER__AUTO_REMOVE_ENABLED

@@ -61,7 +61,7 @@ async def wait_for_api(initial_delay_seconds=5, wait: timedelta = timedelta(minu
 
 
 async def api_request(
-    method: str, path: str, json: dict | None = None, files: RequestFiles | None = None
+    method: str, path: str, json: dict | None = None, files: RequestFiles | None = None, params: dict | None = None
 ) -> dict | None:
     """Make an API request to the server."""
     async with httpx.AsyncClient() as client:
@@ -70,6 +70,7 @@ async def api_request(
             urllib.parse.urljoin(API_BASE_URL, path),
             json=json,
             files=files,
+            params=params,
             timeout=60,
             auth=BasicAuth("beeai-admin", config.admin_password.get_secret_value()) if config.admin_password else None,
         )
@@ -94,7 +95,7 @@ async def api_stream(
     import json as jsonlib
 
     async with (
-        httpx.AsyncClient() as client,
+        httpx.AsyncClient(timeout=120) as client,
         client.stream(
             method,
             urllib.parse.urljoin(API_BASE_URL, path),

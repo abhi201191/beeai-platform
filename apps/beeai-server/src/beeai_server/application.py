@@ -4,8 +4,10 @@
 import logging
 import pathlib
 from contextlib import asynccontextmanager
+import secrets
 from typing import Iterable
 
+from fastapi.middleware import Middleware
 import procrastinate
 from acp_sdk import ACPError
 from acp_sdk.server.errors import (
@@ -16,6 +18,7 @@ from acp_sdk.server.errors import (
 )
 from starlette.requests import Request
 
+from beeai_server.api.auth.backend import JwtAuthBackend, on_auth_error
 from beeai_server.run_workers import run_workers
 from beeai_server.utils.fastapi import NoCacheStaticFiles
 from fastapi import FastAPI, APIRouter
@@ -26,6 +29,8 @@ from kink import inject, di, Container
 from starlette.responses import FileResponse
 from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 from starlette.exceptions import HTTPException as StarletteHttpException
+from starlette.middleware.sessions import SessionMiddleware
+from starlette.middleware.authentication import AuthenticationMiddleware
 from opentelemetry.metrics import get_meter, Observation, CallbackOptions
 from fastapi.exceptions import RequestValidationError
 
@@ -45,8 +50,15 @@ from beeai_server.api.routes.llm import router as llm_router
 from beeai_server.api.routes.ui import router as ui_router
 from beeai_server.api.routes.embeddings import router as embeddings_router
 from beeai_server.api.routes.vector_stores import router as vector_stores_router
+from beeai_server.api.routes.oidc_auth import router as oidc_router
 
 logger = logging.getLogger(__name__)
+
+SESSION_KEY = secrets.token_hex(16)
+middleware = [
+    Middleware(AuthenticationMiddleware, backend=JwtAuthBackend(), on_error=on_auth_error),
+    Middleware(SessionMiddleware, secret_key=SESSION_KEY, https_only=True, session_cookie="session"),
+]
 
 
 def extract_messages(exc):
@@ -116,6 +128,7 @@ def mount_routes(app: FastAPI):
     server_router.include_router(ui_router, prefix="/ui", tags=["ui"])
     server_router.include_router(embeddings_router, prefix="/llm", tags=["embeddings"])
     server_router.include_router(vector_stores_router, prefix="/vector_stores", tags=["vector_stores"])
+    server_router.include_router(oidc_router, prefix="/auth", tags=["oidc"])
 
     app.mount("/healthcheck", lambda: "OK")
     app.include_router(server_router, prefix="/api/v1", tags=["provider"])
@@ -175,6 +188,7 @@ def app(*, dependency_overrides: Container | None = None) -> FastAPI:
         docs_url="/api/v1/docs",
         openapi_url="/api/v1/openapi.json",
         servers=[{"url": f"http://localhost:{configuration.port}"}],
+        middleware=middleware,
     )
 
     logger.info("Mounting routes...")

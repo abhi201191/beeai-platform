@@ -447,6 +447,7 @@ async def start(
                                 "encryptionKey": "Ovx8qImylfooq4-HNwOzKKDcXLZCB3c_m0JlB9eJBxc=",  # Dummy key for local use
                                 "features": {"uiNavigation": True, "selfRegistration": True},
                                 "auth": {"enabled": False},
+                                "oidc": {"enabled": True},
                             }
                         ),
                         "set": dict(value.split("=", 1) for value in set_values_list),

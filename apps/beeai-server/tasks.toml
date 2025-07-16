@@ -250,6 +250,7 @@ $tele quit
 
 $tele connect --namespace "$NAMESPACE"
 $tele replace beeai-platform --port 18333:8333
+$tele status
 """
 
 
